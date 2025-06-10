@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Quiz Game</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-blue-50 min-h-screen flex items-center justify-center p-4">
+
+  <div class="bg-white rounded-2xl shadow-lg p-6 max-w-md w-full" id="quiz-container">
+    <h1 class="text-2xl font-bold mb-4 text-center" id="question">Loading...</h1>
+    <div class="space-y-2" id="answer-buttons"></div>
+    <button class="mt-6 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 hidden" id="next-btn">Next</button>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "What is the capital of France?",
+        answers: [
+          { text: "Berlin", correct: false },
+          { text: "Madrid", correct: false },
+          { text: "Paris", correct: true },
+          { text: "Rome", correct: false },
+        ]
+      },
+      {
+        question: "Which language is used for web development?",
+        answers: [
+          { text: "Python", correct: false },
+          { text: "HTML", correct: true },
+          { text: "C++", correct: false },
+          { text: "Java", correct: false },
+        ]
+      },
+      {
+        question: "Who painted the Mona Lisa?",
+        answers: [
+          { text: "Van Gogh", correct: false },
+          { text: "Leonardo da Vinci", correct: true },
+          { text: "Picasso", correct: false },
+          { text: "Michelangelo", correct: false },
+        ]
+      }
+    ];
+
+    const questionElement = document.getElementById("question");
+    const answerButtons = document.getElementById("answer-buttons");
+    const nextButton = document.getElementById("next-btn");
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    function startQuiz() {
+      currentQuestionIndex = 0;
+      score = 0;
+      nextButton.innerText = "Next";
+      showQuestion();
+    }
+
+    function showQuestion() {
+      resetState();
+      let currentQuestion = questions[currentQuestionIndex];
+      questionElement.innerText = currentQuestion.question;
+
+      currentQuestion.answers.forEach(answer => {
+        const button = document.createElement("button");
+        button.innerText = answer.text;
+        button.classList.add("block", "w-full", "text-left", "bg-blue-100", "hover:bg-blue-200", "px-4", "py-2", "rounded");
+        if (answer.correct) {
+          button.dataset.correct = answer.correct;
+        }
+        button.addEventListener("click", selectAnswer);
+        answerButtons.appendChild(button);
+      });
+    }
+
+    function resetState() {
+      nextButton.classList.add("hidden");
+      while (answerButtons.firstChild) {
+        answerButtons.removeChild(answerButtons.firstChild);
+      }
+    }
+
+    function selectAnswer(e) {
+      const selectedBtn = e.target;
+      const isCorrect = selectedBtn.dataset.correct === "true";
+
+      if (isCorrect) {
+        selectedBtn.classList.add("bg-green-400");
+        score++;
+      } else {
+        selectedBtn.classList.add("bg-red-400");
+      }
+
+      Array.from(answerButtons.children).forEach(button => {
+        button.disabled = true;
+        if (button.dataset.correct === "true") {
+          button.classList.add("bg-green-200");
+        }
+      });
+
+      nextButton.classList.remove("hidden");
+    }
+
+    function showScore() {
+      resetState();
+      questionElement.innerText = `Your Score: ${score} out of ${questions.length}`;
+      nextButton.innerText = "Play Again";
+      nextButton.classList.remove("hidden");
+    }
+
+    function handleNextButton() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < questions.length) {
+        showQuestion();
+      } else {
+        showScore();
+      }
+    }
+
+    nextButton.addEventListener("click", () => {
+      if (currentQuestionIndex < questions.length) {
+        handleNextButton();
+      } else {
+        startQuiz();
+      }
+    });
+
+    startQuiz();
+  </script>
+
+</body>
+</html>
